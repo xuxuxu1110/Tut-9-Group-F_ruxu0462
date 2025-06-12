@@ -114,7 +114,7 @@ function initializeArtwork() {
   }
 }
 
-// --- Wheel Class (from group code, with additions for Commit 1) ---
+// --- Wheel Class (from Commit 1, with additions for Commit 2) ---
 class Wheel {
   constructor(x, y, radius, palette) {
     this.x = x;
@@ -123,31 +123,61 @@ class Wheel {
     this.colors = palette; // Now using a palette array
     this.stemAngle = random(TWO_PI); // For the single 'stem'
 
-    // --- START Commit 1 Addition ---
-    // Individual Task - Time-Based Animation Properties:
-    // This property will control the continuous rotation of the entire wheel.
-    // It's initialized with a random angle for visual variety at start.
+    // Individual Task - Time-Based Animation Properties (from Commit 1):
     this.currentRotation = random(TWO_PI); 
-    // This property controls the speed of rotation. Each wheel has a slightly different speed.
     this.rotationSpeed = random(0.005, 0.02); 
-    // --- END Commit 1 Addition ---
+
+    // --- START Commit 2 Addition ---
+    // For outer dot pulsing animation using easing (as learned in Week 10)
+    // Stores the original size of the outer dots for reference.
+    this.initialOuterDotSize = this.radius * 0.08; 
+    // The current size of the outer dots, which will be smoothly animated.
+    this.currentOuterDotSize = this.initialOuterDotSize; 
+    // The target size the dots are trying to reach. This will alternate to create the pulse.
+    this.targetOuterDotSize = this.initialOuterDotSize; 
+    // Minimum and maximum factors for the dot size during pulsation.
+    this.pulseMinFactor = 0.8; // Dots shrink to 80% of original size
+    this.pulseMaxFactor = 1.2; // Dots grow to 120% of original size
+    // The period (in frames) after which the target size for pulsation changes.
+    // Randomized per wheel for asynchronous pulsing, simulating "Change Periodically" from class.
+    this.pulsePeriod = floor(random(60, 180)); // e.g., every 1-3 seconds (assuming 60 frames/sec)
+    // The easing factor for lerp(), controls the smoothness of the size transition.
+    // Directly from class examples (e.g., easing = 0.05 or 0.08).
+    this.easingFactor = 0.08; 
+    // --- END Commit 2 Addition ---
   }
 
   display() {
     push(); // Save current drawing style and transformations
     translate(this.x, this.y); // Move origin to the wheel's center
 
-    // --- START Commit 1 Addition ---
-    // Time-Based Animation: Wheel Rotation
-    // Increment the rotation angle each frame. This is a continuous animation driven by time (frameCount).
+    // Time-Based Animation: Wheel Rotation (from Commit 1)
     this.currentRotation += this.rotationSpeed; 
-    // Apply the rotation transformation to the wheel.
     rotate(this.currentRotation); 
-    // --- END Commit 1 Addition ---
+
+    // --- START Commit 2 Addition ---
+    // Time-Based Animation: Outer Dot Pulsation with Easing
+    // This uses frameCount as a timer to periodically change the target size,
+    // and lerp() for smooth transitions, as taught in Easing Part 2.
+    if (frameCount % this.pulsePeriod === 0) {
+      // Toggle the target size between shrink and grow
+      if (this.targetOuterDotSize === this.initialOuterDotSize * this.pulseMaxFactor) {
+        this.targetOuterDotSize = this.initialOuterDotSize * this.pulseMinFactor; // Set target to shrink
+      } else {
+        this.targetOuterDotSize = this.initialOuterDotSize * this.pulseMaxFactor; // Set target to grow
+      }
+    }
+    // Smoothly transition the current dot size towards the target size using linear interpolation (lerp()).
+    // The 'easingFactor' controls the rate of approach, creating a decelerating effect.
+    this.currentOuterDotSize = lerp(this.currentOuterDotSize, this.targetOuterDotSize, this.easingFactor);
+    // --- END Commit 2 Addition ---
 
     // Order of drawing layers (back to front)
     this.drawBaseCircle();
-    this.drawOuterDots(); 
+    // Pass the dynamically calculated 'currentOuterDotSize' to the drawing method.
+    // --- START Commit 2 Change ---
+    this.drawOuterDots(this.currentOuterDotSize); 
+    // --- END Commit 2 Change ---
     this.drawSpokes();
     this.drawInnerCircles();
     this.drawStem(); // This could represent a decorative element or a start of a connection
@@ -161,17 +191,21 @@ class Wheel {
     circle(0, 0, this.radius * 2);
   }
 
-  drawOuterDots() { 
+  // Modified to accept dynamic dotSize for animation (allows dots to pulse)
+  // --- START Commit 2 Change ---
+  drawOuterDots(dotSize) { 
+  // --- END Commit 2 Change ---
     const dotCount = 40;
     const dotRadius = this.radius * 0.9;
-    const dotSize = this.radius * 0.08; // This dot size is still fixed in Commit 1
     fill(this.colors[1]); // Second color for outer dots
     noStroke();
     for (let i = 0; i < dotCount; i++) {
       const angle = map(i, 0, dotCount, 0, TWO_PI);
       const dx = cos(angle) * dotRadius;
       const dy = sin(angle) * dotRadius;
-      circle(dx, dy, dotSize); 
+      // --- START Commit 2 Change ---
+      circle(dx, dy, dotSize); // Use the animated dot size passed as a parameter
+      // --- END Commit 2 Change ---
     }
   }
 
@@ -234,7 +268,7 @@ class Wheel {
   }
 }
 
-// --- Connector Class (unchanged in Commit 1) ---
+// --- Connector Class (unchanged in Commit 2) ---
 class Connector {
   constructor(wheel1, wheel2, connectColor) {
     this.w1 = wheel1;
