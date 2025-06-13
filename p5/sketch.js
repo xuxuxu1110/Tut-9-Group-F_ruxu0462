@@ -17,7 +17,7 @@ const colorPalettes = [
   ['#C11F68', '#F9E795', '#F5EEF8', '#2ECC71', '#8E44AD'],
   // Palette 6: Deep Teal with Orange/Red
   ['#006D77', '#FF8C00', '#E29578', '#83C5BE', '#D64045'],
-  // Add more palettes based on your visual analysis of the original artwork
+  // Add more palettes based on our visual analysis of the original artwork
 ];
 
 const backgroundColor = '#2A363B'; // A dark, muted background similar to the original painting
@@ -43,7 +43,7 @@ function draw() {
   }
 }
 
-// --- Initialization Function ---
+// --- Initialization Function (from group code, developed with AI-CHATGPT assistance) ---
 function initializeArtwork() {
   wheels = [];
   connectors = [];
@@ -55,6 +55,8 @@ function initializeArtwork() {
   let currentAttempts = 0;
 
   // Generate wheels with optimized packing
+  // This layout logic (allowing moderate overlap with overlapThreshold and ensuring nearby wheels for connection)
+  // was developed with the assistance of an AI (ChatGPT).
   while (wheels.length < numWheels && currentAttempts < maxAttempts) {
     let candidateRadius = random(minRadius, maxRadius);
     let candidateX = random(candidateRadius, width - candidateRadius);
@@ -101,6 +103,8 @@ function initializeArtwork() {
   }
 
   // Generate connectors between nearby wheels
+  // This logic for connecting nearby wheels and the Connector class structure
+  // were developed with the assistance of an AI (ChatGPT), inspired by previous group iterations.
   for (let i = 0; i < wheels.length; i++) {
     for (let j = i + 1; j < wheels.length; j++) {
       let w1 = wheels[i];
@@ -114,7 +118,7 @@ function initializeArtwork() {
   }
 }
 
-// --- Wheel Class (from Commit 2, with refinements and comments for Commit 3) ---
+// --- Wheel Class (Core group code structure, with individual animation additions) ---
 class Wheel {
   constructor(x, y, radius, palette) {
     this.x = x;
@@ -124,6 +128,7 @@ class Wheel {
     this.stemAngle = random(TWO_PI); // For the single 'stem'
 
     // Individual Task - Time-Based Animation Properties:
+    // These properties for continuous rotation and pulsating dots were developed with the assistance of an AI (ChatGPT).
     // This property will control the continuous rotation of the entire wheel.
     // It's initialized with a random angle for visual variety at start.
     this.currentRotation = random(TWO_PI); 
@@ -144,12 +149,11 @@ class Wheel {
     this.pulseMaxFactor = 1.15; 
     // The period (in frames) after which the target size for pulsation changes.
     // Randomized per wheel for asynchronous pulsing, simulating "Change Periodically" from class.
-    // // This technique was covered in class (Week 10, Easing Part 2: Change Periodically).
-    // // Refinement: Adjusted period range for different pulse frequencies across wheels.
+    // // This concept and its implementation (using frameCount % N) was covered in class (Week 10, Easing Part 2: Change Periodically).
     this.pulsePeriod = floor(random(80, 200)); 
     // The easing factor for lerp(), controls the smoothness of the size transition.
     // Directly from class examples (e.g., easing = 0.05 or 0.08).
-    // // This technique was covered in class (Week 10, Easing Part 1 & 2: Follow the Mouse, Change Periodically).
+    // // The `lerp()` function and its use for smooth transitions was a core concept from Week 10 on Easing.
     // // Refinement: Slightly increased easing factor for a slightly snappier, yet still smooth, response.
     this.easingFactor = 0.1; 
   }
@@ -159,6 +163,7 @@ class Wheel {
     translate(this.x, this.y); // Move origin to the wheel's center
 
     // --- Time-Based Animation: Wheel Rotation ---
+    // This continuous rotation animation was implemented with the assistance of an AI (ChatGPT).
     // Increment the rotation angle each frame. This is a continuous animation driven by time (frameCount).
     // // This concept of continuous change based on frameCount is fundamental to time-based animation in p5.js.
     this.currentRotation += this.rotationSpeed; 
@@ -167,7 +172,8 @@ class Wheel {
     rotate(this.currentRotation); 
 
     // --- Time-Based Animation: Outer Dot Pulsation with Easing ---
-    // This uses frameCount as a timer to periodically change the target size,
+    // This pulsating dot animation, applying easing, was implemented with the assistance of an AI (ChatGPT).
+    // It uses frameCount as a timer to periodically change the target size,
     // and lerp() for smooth transitions, as taught in Easing Part 2.
     // // The `frameCount % this.pulsePeriod === 0` logic directly implements the "Change Periodically" concept.
     if (frameCount % this.pulsePeriod === 0) {
@@ -187,6 +193,7 @@ class Wheel {
     // Order of drawing layers (back to front)
     this.drawBaseCircle();
     // Pass the dynamically calculated 'currentOuterDotSize' to the drawing method.
+    // The modification to drawOuterDots to accept a dynamic size was made with AI assistance (ChatGPT).
     this.drawOuterDots(this.currentOuterDotSize); 
     this.drawSpokes();
     this.drawInnerCircles();
@@ -195,13 +202,14 @@ class Wheel {
     pop(); // Restore previous drawing style and transformations
   }
 
+  // --- Wheel Drawing Helper Methods (from group code) ---
   drawBaseCircle() {
     noStroke();
     fill(this.colors[0]); // Use the first color in the palette for the base
     circle(0, 0, this.radius * 2);
   }
 
-  // Modified to accept dynamic dotSize for animation (allows dots to pulse)
+  // drawOuterDots method modified to accept dynamic dotSize for animation
   drawOuterDots(dotSize) { 
     const dotCount = 40;
     const dotRadius = this.radius * 0.9;
@@ -274,7 +282,7 @@ class Wheel {
   }
 }
 
-// --- Connector Class (unchanged in Commit 3, as focus is on wheel animation) ---
+// --- Connector Class (from group code, developed with AI assistance for its detail) ---
 class Connector {
   constructor(wheel1, wheel2, connectColor) {
     this.w1 = wheel1;
@@ -301,6 +309,7 @@ class Connector {
     line(this.startPoint.x, this.startPoint.y, this.endPoint.x, this.endPoint.y);
 
     // Add decorative elements for the chain-like effect (inspired by original)
+    // The implementation of chain links and central decorative blob was developed with AI assistance (Gemini).
     let midX = (this.startPoint.x + this.endPoint.x) / 2;
     let midY = (this.startPoint.y + this.endPoint.y) / 2;
     let distBetweenWheels = dist(this.startPoint.x, this.startPoint.y, this.endPoint.x, this.endPoint.y);
